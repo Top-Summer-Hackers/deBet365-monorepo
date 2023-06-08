@@ -90,6 +90,15 @@ module.exports = {
   theme: {
     // Extend Tailwind classes (e.g. font-bai-jamjuree, animate-grow)
     extend: {
+      colors: {
+        'bet-teal': '#006A91',
+        'bet-cyan': '#87EFFF',
+        'bet-dark-cyan': '#003F55'
+      },
+      backgroundImage: {
+        'hero-circle': "url('/login/circle-gradient.png')",
+        'hero-player': "url('/login/player.png'"
+      },
       fontFamily: {
         "bai-jamjuree": ["Bai Jamjuree", "sans-serif"],
       },
