@@ -1,5 +1,6 @@
-import { erc20ABI, useContractWrite, useContractRead, usePrepareContractWrite } from 'wagmi';
+import { useContractWrite, useContractRead, usePrepareContractWrite, useAccount } from 'wagmi';
 import GameSingleImplementationABI from '~~/types/GameSingleImplementationABI';
+import MockERC20 from '~~/types/MockERC20';
 import { useState, useEffect } from 'react'
 import { Dialog } from '@headlessui/react'
 import { utils } from 'ethers';
@@ -13,6 +14,7 @@ type DepositPopup = {
 export default function BetPopup(props: DepositPopup) {
   const [isOpen, setIsOpen] = useState(false);
   const [betAmount, setBetAmount] = useState('0.0');
+  const { address: userAddress } = useAccount();
   const { address: gameAddress, onClose, choice } = props;
   const { data: tokenAddress } = useContractRead({
     address: gameAddress,
@@ -20,19 +22,33 @@ export default function BetPopup(props: DepositPopup) {
     functionName: 'tokenAddr',
   });
 
+  const { config: faucetConfig } = usePrepareContractWrite({
+    address: tokenAddress,
+    abi: MockERC20.abi,
+    functionName: 'faucet',
+    args: [utils.parseEther(betAmount), userAddress ?? ''],
+  })
+  const { writeAsync: callFaucet } = useContractWrite(faucetConfig);
+
   const { config: approveConfig } = usePrepareContractWrite({
     address: tokenAddress,
-    abi: erc20ABI,
+    abi: MockERC20.abi,
     functionName: 'approve',
     args: [gameAddress ?? '', utils.parseEther(betAmount)],
+    onSuccess: () => {
+
+    }
   })
   const { writeAsync: approveDeposit } = useContractWrite(approveConfig);
-  
+
   const { config: depositConfig } = usePrepareContractWrite({
     address: gameAddress,
     abi: GameSingleImplementationABI,
     functionName: 'play',
     args: [choice!, utils.parseEther(betAmount)],
+    onSuccess: () => {
+
+    }
   })
   const { writeAsync: deposit } = useContractWrite(depositConfig);
 
@@ -43,7 +59,7 @@ export default function BetPopup(props: DepositPopup) {
   return (
     <Dialog
       open={isOpen}
-      onClose={() => {setIsOpen(false); onClose()}}
+      onClose={() => { setIsOpen(false); onClose() }}
       className="relative z-50"
     >
       <div className="fixed inset-0 flex items-center justify-center">
@@ -58,14 +74,16 @@ export default function BetPopup(props: DepositPopup) {
               onChange={(e) => setBetAmount(e.target.value)}
             />
           </Dialog.Description>
-          <button 
+          <button
             className="font-bold text-sm bg-bet-cyan text-bet-black-light rounded-lg py-2 px-6 mt-auto w-full"
             onClick={() => {
-              approveDeposit?.()?.then?.(() => {
-                deposit?.()?.then(() => {
-                  setIsOpen(false)
-                  onClose()
-              })
+              callFaucet?.()?.then?.(() => {
+                approveDeposit?.()?.then?.(() => {
+                  deposit?.()?.then(() => {
+                    setIsOpen(false)
+                    onClose()
+                  })
+                })
               })
             }}
           >

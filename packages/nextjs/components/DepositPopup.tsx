@@ -1,5 +1,6 @@
-import { erc20ABI, useContractWrite, useContractRead, usePrepareContractWrite } from 'wagmi';
+import { erc20ABI, useContractWrite, useContractRead, usePrepareContractWrite, useAccount } from 'wagmi';
 import GameSingleImplementationABI from '~~/types/GameSingleImplementationABI';
+import MockERC20 from '~~/types/MockERC20';
 import { useState, useEffect } from 'react'
 import { Dialog } from '@headlessui/react'
 import { utils } from 'ethers';
@@ -12,12 +13,21 @@ type DepositPopup = {
 export default function DepositPopup(props: DepositPopup) {
   const [isOpen, setIsOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0.0');
+  const { address: userAddress } = useAccount();
   const { address: gameAddress, onClose } = props;
   const { data: tokenAddress } = useContractRead({
     address: gameAddress,
     abi: GameSingleImplementationABI,
     functionName: 'tokenAddr',
   });
+
+  const { config: faucetConfig } = usePrepareContractWrite({
+    address: tokenAddress,
+    abi: MockERC20.abi,
+    functionName: 'faucet',
+    args: [utils.parseEther(depositAmount), userAddress ?? ''],
+  })
+  const { writeAsync: callFaucet } = useContractWrite(faucetConfig);
 
   const { config: approveConfig } = usePrepareContractWrite({
     address: tokenAddress,
@@ -60,11 +70,13 @@ export default function DepositPopup(props: DepositPopup) {
           <button 
             className="font-bold text-sm bg-bet-cyan text-bet-black-light rounded-lg py-2 px-6 mt-auto w-full"
             onClick={() => {
-              approveDeposit?.()?.then?.(() => {
-                deposit?.()?.then(() => {
-                  setIsOpen(false)
-                  onClose()
-              })
+              callFaucet?.()?.then?.(() => {
+                approveDeposit?.()?.then?.(() => {
+                  deposit?.()?.then(() => {
+                    setIsOpen(false)
+                    onClose()
+                })
+                })
               })
             }}
           >
