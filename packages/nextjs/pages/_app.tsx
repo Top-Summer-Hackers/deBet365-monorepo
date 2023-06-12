@@ -6,7 +6,6 @@ import NextNProgress from "nextjs-progressbar";
 import { Toaster } from "react-hot-toast";
 import { useDarkMode } from "usehooks-ts";
 import { WagmiConfig } from "wagmi";
-import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
@@ -19,8 +18,8 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   const price = useNativeCurrencyPrice();
   const setNativeCurrencyPrice = useGlobalState(state => state.setNativeCurrencyPrice);
   // This variable is required for initial client side rendering of correct theme for RainbowKit
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
-  const { isDarkMode } = useDarkMode();
+  // const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const { isDarkMode, toggle } = useDarkMode(true);
 
   useEffect(() => {
     if (price > 0) {
@@ -29,7 +28,8 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   }, [setNativeCurrencyPrice, price]);
 
   useEffect(() => {
-    setIsDarkTheme(isDarkMode);
+    if (!isDarkMode) toggle();
+    // setIsDarkTheme(isDarkMode);
   }, [isDarkMode]);
 
   return (
@@ -38,14 +38,14 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
       <RainbowKitProvider
         chains={appChains.chains}
         avatar={BlockieAvatar}
-        theme={isDarkTheme ? darkTheme() : lightTheme()}
+        theme={darkTheme()}
       >
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="relative flex flex-col flex-1">
             <Component {...pageProps} />
           </main>
-          <Footer />
+          {/* <Footer /> */}
         </div>
         <Toaster />
       </RainbowKitProvider>
