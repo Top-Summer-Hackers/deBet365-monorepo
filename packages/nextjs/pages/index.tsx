@@ -5,7 +5,7 @@ import {useState} from "react";
 import { BigNumber, utils } from "ethers";
 import DebetABI from "~~/types/DebetABI";
 import GameSingleImplementationABI from "~~/types/GameSingleImplementationABI";
-import Popup from "~~/components/Popup";
+import Popup from "~~/components/DepositPopup";
 
 const DEBET_CONTRACT_ADDRESS = '0xCfa537e30F0af3495330cf7C200F1F7B153Be88a';
 const DebetContract = {
