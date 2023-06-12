@@ -1,6 +1,6 @@
 // TODO: replace with live data
 import Head from "next/head";
-import { erc20ABI, useContractRead, useContractReads, Address } from "wagmi";
+import { useContractReads, Address } from "wagmi";
 import { useState } from "react";
 import { BigNumber, utils } from "ethers";
 import DebetABI from "~~/types/DebetABI";
@@ -123,17 +123,20 @@ export default function App() {
             <img className="mr-3 w-6" src="/app/aperture.png" />
             <h1 className="text-xl m-0">Live Games</h1>
           </div>
-          {liveGames.map((name) => <div className="flex flex-row items-center p-2">
+          {liveGames.map((name) => <div 
+            key={name}
+            className="flex flex-row items-center p-2"
+          >
             <img className="mr-3 rounded-full border-2 border-white w-6" src="/app/aperture.png" />
             <h1 className="text-md m-0">{name}</h1>
-          </div>)}
+          </div>)}x
           <button className="text-left p-2">More games</button>
 
           <div className="flex flex-row items-center bg-gradient-to-r from-bet-teal to-white/0 p-2">
             <img className="mr-3 w-6" src="/app/aperture.png" />
             <h1 className="text-xl m-0">Upcoming Games</h1>
           </div>
-          {upcomingGames.map((name) => <div className="flex flex-row items-center p-2">
+          {upcomingGames.map((name) => <div key={name} className="flex flex-row items-center p-2">
             <img className="mr-3 rounded-full border-2 border-white w-6" src="/app/aperture.png" />
             <h1 className="text-md m-0">{name}</h1>
           </div>)}
