@@ -1,11 +1,12 @@
 // TODO: replace with live data
 import Head from "next/head";
 import { erc20ABI, useContractRead, useContractReads, Address } from "wagmi";
-import {useState} from "react";
+import { useState } from "react";
 import { BigNumber, utils } from "ethers";
 import DebetABI from "~~/types/DebetABI";
 import GameSingleImplementationABI from "~~/types/GameSingleImplementationABI";
 import Popup from "~~/components/DepositPopup";
+import BetPopup from "~~/components/BetPopup";
 
 const DEBET_CONTRACT_ADDRESS = '0xCfa537e30F0af3495330cf7C200F1F7B153Be88a';
 const DebetContract = {
@@ -34,6 +35,8 @@ const UPCOMING_GAMES = [
 
 const Game = ({ address }: { address: Address }) => {
   const [currentDeposit, setCurrentDeposit] = useState<Address>();
+  const [currentBet, setCurrentBet] = useState<Address>();
+  const [currentChoice, setCurrentChoice] = useState<0 | 1 | 2>();
   const { data = [[BigNumber.from(0), BigNumber.from(0), BigNumber.from(0)], null] } = useContractReads({
     contracts: [{
       address,
@@ -46,12 +49,16 @@ const Game = ({ address }: { address: Address }) => {
       functionName: 'tokenAddr',
     }]
   });
-  console.log(data)
   const [first, second, third] = data?.[0]?.map?.((odd) => utils.formatUnits(odd, 18));
   return <div className="flex flex-row items-center pl-4">
-    <Popup 
+    <Popup
       onClose={() => setCurrentDeposit(undefined)}
       address={currentDeposit}
+    />
+    <BetPopup
+      choice={currentChoice}
+      onClose={() => setCurrentBet(undefined)}
+      address={currentBet}
     />
     22:20
     <div className="flex flex-row items-center ml-12">
@@ -59,13 +66,28 @@ const Game = ({ address }: { address: Address }) => {
       <img className="rounded-full border-2 border-white w-12 h-12" src="/app/aperture.png" />
     </div>
     <div className="flex flex-row gap-x-2 mx-auto w-[225px]">
-      <button className="bg-bet-cyan/30 rounded-lg h-fit p-2 px-4 w-1/3">
+      <button className="bg-bet-cyan/30 rounded-lg h-fit p-2 px-4 w-1/3"
+        onClick={() => {
+          setCurrentBet(address)
+          setCurrentChoice(0)
+        }}
+      >
         {first}
       </button>
-      <button className="bg-bet-yellow/30 rounded-lg h-fit p-2 px-4 w-1/3">
+      <button className="bg-bet-yellow/30 rounded-lg h-fit p-2 px-4 w-1/3"
+        onClick={() => {
+          setCurrentBet(address)
+          setCurrentChoice(1)
+        }}
+      >
         {second}
       </button>
-      <button className="bg-bet-green/30 rounded-lg h-fit p-2 px-4 w-1/3">
+      <button className="bg-bet-green/30 rounded-lg h-fit p-2 px-4 w-1/3"
+        onClick={() => {
+          setCurrentBet(address)
+          setCurrentChoice(2)
+        }}
+      >
         {third}
       </button>
     </div>
