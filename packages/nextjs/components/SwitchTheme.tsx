@@ -8,9 +8,8 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
 
   useEffect(() => {
     const body = document.body;
-    body.setAttribute("data-theme", isDarkMode ? "scaffoldEthDark" : "scaffoldEth");
-  }, [isDarkMode]);
-
+    body.setAttribute("data-theme", "scaffoldEthDark");
+  });
   return (
     <div className={`flex space-x-2 text-sm ${className}`}>
       <input
